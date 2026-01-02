@@ -47,6 +47,7 @@ export const addProduct = async (request, reply) => {
       meta_description: request.body.meta_description,
       meta_keywords: request.body.meta_keywords,
       showingOnHomePage: request.body.showingOnHomePage,
+      amazon_link: `https://www.amazon.in/${slug}/dp/${request.body.sku}/ref=sr_1_1`,
       createdAt: new Date()
     };
 
@@ -128,6 +129,7 @@ export const updateProduct = async (request, reply) => {
         meta_keywords: body.meta_keywords,
         showingOnHomePage: body.showingOnHomePage,
         slug: updatedSlug,
+        amazon_link: `https://www.amazon.in/${updatedSlug}/dp/${body.sku}/ref=sr_1_1`,
         updatedAt: new Date()
       };
 
