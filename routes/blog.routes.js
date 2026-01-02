@@ -28,4 +28,12 @@ export default async function blogRoutes(fastify, options) {
     {preHandler:[authMiddleware]},
     deleteBlogById
   )
+    fastify.get(
+    '/frontend/blog',
+    getAllBlogs
+  );
+    fastify.get(
+    "/frontend/blog/:slug",
+    getBlogDetailsBySlug
+  )
 }
