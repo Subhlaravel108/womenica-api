@@ -29,7 +29,7 @@ export default async function blogRoutes(fastify, options) {
     deleteBlogById
   )
     fastify.get(
-    '/frontend/blog',
+    '/frontend/blogs',
     getAllBlogs
   );
     fastify.get(
