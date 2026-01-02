@@ -49,21 +49,59 @@ import cloudinary from "../utils/cloudinary.js";
 
 
 
+// export const uploadImage = async (req, reply) => {
+//   try {
+//     let file;
+
+//     for await (const part of req.parts()) {
+//       if (part.type === "file" && part.fieldname === "image") {
+//         file = part;
+//         break;
+//       }
+//     }
+
+//     if (!file) {
+//       return reply.code(400).send({
+//         success: false,
+//         message: "Image file is required!"
+//       });
+//     }
+
+//     const buffer = await file.toBuffer();
+
+//     const result = await new Promise((resolve, reject) => {
+//       cloudinary.uploader.upload_stream(
+//         { folder: "womenica_app_uploads" },
+//         (err, result) => {
+//           if (err) reject(err);
+//           else resolve(result);
+//         }
+//       ).end(buffer);
+//     });
+
+//     reply.send({
+//       success: true,
+//       imageUrl: result.secure_url,
+//     });
+
+//   } catch (error) {
+//     console.error(error);
+//     reply.code(500).send({
+//       success: false,
+//       message: error.message,
+//     });
+//   }
+// };
+
+
 export const uploadImage = async (req, reply) => {
   try {
-    let file;
-
-    for await (const part of req.parts()) {
-      if (part.type === "file" && part.fieldname === "image") {
-        file = part;
-        break;
-      }
-    }
+    const file = await req.body.image;
 
     if (!file) {
       return reply.code(400).send({
         success: false,
-        message: "Image file is required!"
+        message: "Image file is required!",
       });
     }
 
@@ -83,7 +121,6 @@ export const uploadImage = async (req, reply) => {
       success: true,
       imageUrl: result.secure_url,
     });
-
   } catch (error) {
     console.error(error);
     reply.code(500).send({
