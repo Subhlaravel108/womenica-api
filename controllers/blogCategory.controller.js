@@ -239,3 +239,30 @@ export const deleteBlogCategory=async(req,reply)=>{
         });
     }
 }
+
+
+export const getAllActiveBlogCategories=async(req,reply)=>{
+  try{
+      const db=req.mongo?.db || req.server?.mongo?.db;
+      if(!db){
+              return reply.code(500).send({
+                  success:false,
+                  message:"Database connection not available",
+              });
+      }
+      const categoriesCol=db.collection("blogCategories");
+      const categories=await categoriesCol.find({status:"Active"}).toArray();
+      return reply.code(200).send({
+          success:true,
+          message:"Active blog categories fetched successfully",
+          data:categories,
+      });
+  }catch(err){
+      console.error("Get All Active Blog Categories Error:",err);
+      return reply.code(500).send({
+          success:false,
+          message:"Internal Server Error",
+          error:err.message,
+      });
+  } 
+}

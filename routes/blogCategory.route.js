@@ -1,4 +1,4 @@
-import { createBlogCategory,updateBlogCategory,getAllBlogCategory,getBlogCategoryDetails,deleteBlogCategory } from "../controllers/blogCategory.controller.js";
+import { createBlogCategory,updateBlogCategory,getAllBlogCategory,getBlogCategoryDetails,deleteBlogCategory,getAllActiveBlogCategories } from "../controllers/blogCategory.controller.js";
 import { validateSchema } from "../validators/validation.middleware.js";
 import { authMiddleware } from "../middleware/auth.middleware.js";
 import { blogCategorySchema } from "../validators/blogCategory.validator.js";
@@ -30,6 +30,11 @@ export default async function blogCategoryRoutes(fastify, options) {
     {preHandler:[authMiddleware]},
     deleteBlogCategory
   )
+
+  fastify.get(
+    '/blogs/active-categories',
+    getAllActiveBlogCategories
+  );
 
 
 }
