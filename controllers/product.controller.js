@@ -306,7 +306,7 @@ export const fetchProductsByCategory = async (request, reply) => {
     const search = request.query.search || "";
 
     // ✅ Step 1: Find category by slug
-    const category = await categoryCollection.findOne({status:"active", slug });
+    const category = await categoryCollection.findOne({ slug });
 
     if (!category) {
       return reply.code(404).send({
@@ -326,12 +326,12 @@ export const fetchProductsByCategory = async (request, reply) => {
     }
 
     const products = await productCollection
-      .find(query)
+      .find({status:"active", ...query})
       .skip((page - 1) * limit)
       .limit(limit)
       .toArray();
 
-    const total = await productCollection.countDocuments(query);
+    const total = await productCollection.countDocuments({status:"active", ...query});
 
     return reply.send({
       success: true,
