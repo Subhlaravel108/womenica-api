@@ -229,6 +229,34 @@ export const deleteProductCategory = async (request, reply) => {
   }
 };
 
+
+export const getAllActiveProductCategories = async (request, reply) => {
+  try {
+    const db = request.server.mongo.db;
+    if (!db) {
+      return reply.code(500).send({
+        success: false,
+        message: 'Database connection not available'
+      });
+    }
+    const collection = db.collection('productCategories');
+    const categories = await collection.find({ status: 'Active' })
+      .sort({ createdAt: -1 })
+      .toArray();
+    return reply.code(200).send({
+      success: true,
+      data: categories
+    });
+  }
+  catch (error) {
+    request.log.error(error);
+    reply.code(500).send({  
+        success: false,
+        message: 'Internal Server Error'
+    });
+  }
+};
+
 export const fetchAllActiveProductCategoriesForFrontend = async (request, reply) => {
   try {
     const db = request.server.mongo.db;
