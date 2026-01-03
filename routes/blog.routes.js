@@ -1,4 +1,4 @@
-import { createBlog,updateBlogBySlug,getAllBlogs,getBlogDetailsBySlug,deleteBlogById } from "../controllers/blog.controller.js";
+import { createBlog,updateBlogBySlug,getAllBlogs,getBlogDetailsBySlug,deleteBlogById, getAllActiveBlogs } from "../controllers/blog.controller.js";
 import { validateSchema } from "../validators/validation.middleware.js";
 import { authMiddleware } from "../middleware/auth.middleware.js";
 import { createBlogSchema } from "../validators/blog.validator.js";
@@ -30,7 +30,7 @@ export default async function blogRoutes(fastify, options) {
   )
     fastify.get(
     '/frontend/blogs',
-    getAllBlogs
+    getAllActiveBlogs
   );
     fastify.get(
     "/frontend/blog/:slug",

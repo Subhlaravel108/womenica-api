@@ -389,3 +389,70 @@ export const deleteBlogById = async (req, reply) => {
         });
     }
     }
+
+
+
+    export const getAllActiveBlogs = async (req, reply) => {
+  try {
+    const db = req.mongo?.db || req.server?.mongo?.db;
+    if (!db) {
+      return reply.code(500).send({
+        success: false,
+        message: "Database connection not available",
+      });
+    }
+
+    const blogsCol = db.collection("blog");
+
+    // Query Params
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 9;
+    const search = req.query.search ? req.query.search.trim() : "";
+
+    // Search Filter
+    const filter = {};
+    if (search) {
+      filter.$or = [
+        { title: { $regex: search, $options: "i" } },
+        { category: { $regex: search, $options: "i" } },
+        { author: { $regex: search, $options: "i" } },
+        { tags: { $regex: search, $options: "i" } },
+      ];
+    }
+
+   
+
+    // =============== 🔽 NORMAL MODE =============== //
+    // const totalBlogs = await blogsCol.countDocuments(filter);
+
+    const blogs = await blogsCol
+      .find({ status: "Published", ...filter })
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .toArray();
+
+    const totalBlogs = await blogsCol.countDocuments({ status: "Published", ...filter });
+
+    const totalPages = Math.ceil(totalBlogs / limit);
+
+    return reply.code(200).send({
+      success: true,
+      message: "Blogs fetched successfully",
+      pagination: {
+        total: totalBlogs,
+        page,
+        limit,
+        totalPages,
+      },
+      data: blogs,
+    });
+  } catch (err) {
+    console.error("Get All Blogs Error:", err);
+    return reply.code(500).send({
+      success: false,
+      message: "Internal Server Error",
+      error: err.message,
+    });
+  }
+};
