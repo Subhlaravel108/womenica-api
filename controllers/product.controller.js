@@ -306,7 +306,7 @@ export const fetchProductsByCategory = async (request, reply) => {
     const search = request.query.search || "";
 
     // ✅ Step 1: Find category by slug
-    const category = await categoryCollection.findOne({ slug });
+    const category = await categoryCollection.findOne({status:"active", slug });
 
     if (!category) {
       return reply.code(404).send({
