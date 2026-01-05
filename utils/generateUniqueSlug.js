@@ -1,8 +1,16 @@
 import slugify from 'slugify';
 
 export const generateUniqueSlug = async (title, collection) => {
-  const baseSlug =
-    slugify(title, { lower: true, strict: true }).slice(0, 120) || 'item';
+  const cleanTitle = title
+    .replace(/\|/g, ' ')
+    .replace(/&/g, ' ');
+
+  let baseSlug = slugify(cleanTitle, {
+    lower: true,
+    strict: true
+  });
+
+  baseSlug = baseSlug.slice(0, 300).replace(/^-+|-+$/g, '');
 
   let slug = baseSlug;
   let counter = 1;
@@ -13,3 +21,5 @@ export const generateUniqueSlug = async (title, collection) => {
 
   return slug;
 };
+
+

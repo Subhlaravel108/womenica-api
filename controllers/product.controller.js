@@ -207,15 +207,17 @@ export const fetchProductDetails = async (request, reply) => {
     }
     const collection = db.collection('products');
 
+    
     const product = await collection.findOne({ slug });
-
+    
     if (!product) {
       return reply.code(404).send({
         success: false,
         message: 'Product not found'
       });
     }
-
+    
+    console.log("Fetching product with slug:", slug);
     reply.code(200).send({
       success: true,
       data: product

@@ -83,7 +83,7 @@
 import XLSX from 'xlsx';
 import { generateUniqueSlug } from "../utils/generateUniqueSlug.js";
 import { createProductSchema } from '../validators/product.validator.js';
-
+import { ObjectId } from '@fastify/mongodb';
 export const uploadExcelToProducts = async (request, reply) => {
   try {
     const db = request.server.mongo.db;
@@ -139,7 +139,7 @@ export const uploadExcelToProducts = async (request, reply) => {
           description: validatedRow.description,
           product_price: validatedRow.product_price,
           sku: validatedRow.sku,
-          productCategoryId: validatedRow.productCategoryId,
+          productCategoryId: new ObjectId(validatedRow.productCategoryId),
           status: validatedRow.status,
           showingOnHomePage: validatedRow.showingOnHomePage,
           slug,
