@@ -23,7 +23,7 @@ export default async function productRoutes(fastify, options) {
   );
   fastify.get('/product/:slug', { preHandler: [authMiddleware] }, fetchProductDetails)
 
-  fastify.delete('/product/delete/:id', { preHandler: [authMiddleware] }, deleteProduct);
+  fastify.delete('/product/delete', { preHandler: [authMiddleware] }, deleteProduct);
 
   fastify.get('/frontend/products', fetchProductsForHomePage);
   fastify.get('/frontend/product/:slug', fetchProductDetails);
