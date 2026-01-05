@@ -428,7 +428,7 @@ export const fetchAllProductList = async (request, reply) => {
 
     const page=  request.query.page || 1;
     const limit= request.query.limit || 9;
-    const search= request.query.search || "";
+    const search= request.query.q || "";
     
     const query = search
       ? { title: { $regex: search, $options: 'i' } }
