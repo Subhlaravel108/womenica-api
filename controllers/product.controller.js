@@ -413,3 +413,49 @@ export const fetchRelatedProducts = async (request, reply) => {
     });
   }
 };
+
+
+export const fetchAllProductList = async (request, reply) => {
+  try {
+    const db = request.server.mongo.db;
+    if (!db) {
+      return reply.code(500).send({
+        success: false,
+        message: 'Database connection not available'
+      });
+    }
+    const collection = db.collection('products');
+
+    const page=  request.query.page || 1;
+    const limit= request.query.limit || 9;
+    const search= request.query.search || "";
+    
+    const query = search
+      ? { title: { $regex: search, $options: 'i' } }
+      : {};
+    const products = await collection
+      .find(query)
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .toArray();
+
+    const totalCount = await collection.countDocuments(query);
+
+    reply.code(200).send({
+      success: true,
+      data: products,
+      pagination: {
+        total: totalCount,
+        page: page,
+        limit: limit,
+        totalPages: Math.ceil(totalCount / limit)
+      }
+    });
+  } catch (error) {
+    request.log.error(error);
+    reply.code(500).send({
+      success: false,
+      message: 'Internal Server Error'
+    });
+  }
+}

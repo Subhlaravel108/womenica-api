@@ -1,5 +1,5 @@
 // import { addProduct } from "../controllers/product.controller";
-import { addProduct,updateProduct,fetchProducts,fetchProductDetails,deleteProduct,fetchProductsForHomePage,fetchProductsByCategory, fetchRelatedProducts } from "../controllers/product.controller.js";
+import { addProduct,updateProduct,fetchProducts,fetchProductDetails,deleteProduct,fetchProductsForHomePage,fetchProductsByCategory, fetchRelatedProducts, fetchAllProductList } from "../controllers/product.controller.js";
 import { createProductSchema } from "../validators/product.validator.js";
 import { validateSchema } from "../validators/validation.middleware.js";
 // import authMiddleware from "../middleware/auth.middleware.js";
@@ -33,5 +33,7 @@ export default async function productRoutes(fastify, options) {
   '/frontend/products/:id/related',
   fetchRelatedProducts
 );
+
+fastify.get('/frontend/product/search', fetchAllProductList);
 
 }
