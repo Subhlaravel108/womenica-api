@@ -426,9 +426,10 @@ export const fetchAllProductList = async (request, reply) => {
     }
     const collection = db.collection('products');
 
-    const page=  request.query.page || 1;
-    const limit= request.query.limit || 9;
-    const search= request.query.q || "";
+   const page = Number(request.query.page) || 1;
+const limit = Number(request.query.limit) || 9;
+const search = request.query.q || "";
+
     
     const query = search
       ? { title: { $regex: search, $options: 'i' } }
