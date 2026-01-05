@@ -230,40 +230,72 @@ export const fetchProductDetails = async (request, reply) => {
 }
 
 
+
+
 export const deleteProduct = async (request, reply) => {
   try {
-    const { id } = request.params;
-
     const db = request.server.mongo.db;
     if (!db) {
       return reply.code(500).send({
         success: false,
-        message: 'Database connection not available'
+        message: "Database connection not available",
       });
     }
-    const collection = db.collection('products');
 
-    const result = await collection.deleteOne({ _id: new ObjectId(id) });
-    
+    const collection = db.collection("products");
+
+    const { id, ids, deleteAll } = request.body || {};
+
+    let result;
+
+    // ✅ Delete ALL products
+    if (deleteAll === true) {
+      result = await collection.deleteMany({});
+    }
+
+    // ✅ Delete MULTIPLE selected products
+    else if (Array.isArray(ids) && ids.length > 0) {
+      result = await collection.deleteMany({
+        _id: { $in: ids.map((id) => new ObjectId(id)) },
+      });
+    }
+
+    // ✅ Delete SINGLE product
+    else if (id) {
+      result = await collection.deleteOne({
+        _id: new ObjectId(id),
+      });
+    }
+
+    else {
+      return reply.code(400).send({
+        success: false,
+        message: "Invalid delete request",
+      });
+    }
+
     if (result.deletedCount === 0) {
       return reply.code(404).send({
         success: false,
-        message: 'Product not found'
+        message: "No product found to delete",
       });
     }
-    
+
     reply.code(200).send({
       success: true,
-      message: 'Product deleted successfully'
+      message: "Product(s) deleted successfully",
+      deletedCount: result.deletedCount,
     });
+
   } catch (error) {
     request.log.error(error);
     reply.code(500).send({
       success: false,
-      message: 'Internal Server Error'
+      message: "Internal Server Error",
     });
   }
-}
+};
+
 
 
 export const fetchProductsForHomePage = async (request, reply) => {
@@ -430,18 +462,17 @@ export const fetchAllProductList = async (request, reply) => {
 const limit = Number(request.query.limit) || 9;
 const search = request.query.q || "";
 
-    
-    const query = search
-      ? { title: { $regex: search, $options: 'i' } }
-      : {};
-    const products = await collection
-      .find(query)
-      .skip((page - 1) * limit)
-      .limit(limit)
-      .toArray();
 
-    const totalCount = await collection.countDocuments(query);
+const query = search
+? { title: { $regex: search, $options: 'i' } }
+: {};
+const products = await collection
+.find(query)
+.skip((page - 1) * limit)
+.limit(limit)
+.toArray();
 
+const totalCount = await collection.countDocuments(query);
     reply.code(200).send({
       success: true,
       data: products,
