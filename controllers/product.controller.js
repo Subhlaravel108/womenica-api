@@ -197,6 +197,7 @@ export const fetchProducts = async (request, reply) => {
 export const fetchProductDetails = async (request, reply) => {
   try {
     const { slug } = request.params;
+    
 
     const db = request.server.mongo.db;
     if (!db) {
