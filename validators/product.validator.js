@@ -69,4 +69,15 @@ export const createProductSchema = yup.object({
   .boolean()
   .required("showingOnHomePage is required")
   .oneOf([true, false], "showingOnHomePage must be true or false"),
+
+  inTrending: yup
+  .boolean()
+  .required("inTrending is required")
+  .oneOf([true, false], "inTrending must be true or false"),
+
+  isBestSeller: yup
+  .boolean()
+  .required("isBestSeller is required")
+  .oneOf([true, false], "isBestSeller must be true or false"),
+
 });

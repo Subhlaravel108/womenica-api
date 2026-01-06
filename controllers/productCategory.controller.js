@@ -1,6 +1,7 @@
 import { ObjectId } from "mongodb";
 import { generateUniqueSlug } from "../utils/generateUniqueSlug.js";
 import { stat } from "fs";
+import { json } from "stream/consumers";
 
 export const addProductCategory = async (request, reply) => {
     try {
@@ -105,20 +106,69 @@ export const fetchProductsCategories = async (request, reply) => {
     }
     const collection = db.collection('productCategories');
     const page= request.query.page ? parseInt(request.query.page) : 1;
-    const limit= request.query.limit ? parseInt(request.query.limit) : 10;
+    const limit= request.query.limit ? parseInt(request.query.limit) : 12;
     const search= request.query.search || "";
-    // const query = {};
+    const type= request.query.type || "all";
+    const download= request.query.download=== 'true';
 
-    // if (search) {
-    //   query.$or = [
-    //     { title: { $regex: search, $options: 'i' } },
-    //     { description: { $regex: search, $options: 'i' } }
-    //   ];
-    // }
-
+   
      const query = search
           ? { title: { $regex: search, $options: 'i' } }
           : {};
+
+      if(download)
+      {
+        let  downloadFilter= {...query};
+
+        if(type==="all"){
+            downloadFilter.status="Active";
+        }
+        if(type==="homepage"){
+          downloadFilter.showingOnHomePage=true;
+          downloadFilter.status="Active";
+
+           const homepageCategories = await collection.find(downloadFilter)
+          .sort({ createdAt: -1 }).limit(limit)
+          .toArray();
+
+          const jsonData= JSON.stringify({
+              success: true,
+              data: homepageCategories
+            },null,2);
+          return reply 
+          .header('Content-Type', 'application/json')
+          .header('Content-Disposition', 'attachment; filename=homepage_categories.json')
+          .send(jsonData);
+        }
+
+
+
+        const totalCategories = await collection.countDocuments(downloadFilter);
+
+        const allCategories= await collection.find(downloadFilter)
+          .sort({ createdAt: -1 })
+          .toArray();
+
+          const totalPages= Math.ceil(totalCategories/limit);
+
+          const jsonData= JSON.stringify({
+              success: true,
+              pagination: {
+                total: totalCategories,
+                page: Number(page),
+                limit: Number(limit),
+                totalPages: totalPages
+              },
+              data: allCategories
+            },null,2);
+
+          const fileName=type==="homepage"?"homepage_categories.json":"all_categories.json";
+
+          return reply 
+          .header('Content-Type', 'application/json')
+          .header('Content-Disposition', `attachment; filename=${fileName}`)
+          .send(jsonData);
+      }
 
     const totalCategories = await collection.countDocuments(query);
     const categories = await collection.find(query)

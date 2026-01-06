@@ -47,6 +47,8 @@ export const addProduct = async (request, reply) => {
       meta_description: request.body.meta_description,
       meta_keywords: request.body.meta_keywords,
       showingOnHomePage: request.body.showingOnHomePage,
+      inTrending: request.body.inTrending,
+      isBestSeller: request.body.isBestSeller,
       amazon_link: `https://www.amazon.in/${slug}/dp/${request.body.sku}/ref=sr_1_1`,
       createdAt: new Date()
     };
@@ -128,6 +130,8 @@ export const updateProduct = async (request, reply) => {
         meta_description: body.meta_description,
         meta_keywords: body.meta_keywords,
         showingOnHomePage: body.showingOnHomePage,
+        inTrending: body.inTrending,
+        isBestSeller: body.isBestSeller,
         slug: updatedSlug,
         amazon_link: `https://www.amazon.in/${updatedSlug}/dp/${body.sku}/ref=sr_1_1`,
         updatedAt: new Date()
@@ -160,17 +164,76 @@ export const fetchProducts = async (request, reply) => {
       });
     }
     const collection = db.collection('products');
-    const page=  request.query.page || 1;
-    const limit= request.query.limit || 9;
+    const page=  parseInt(request.query.page) || 1;
+    const limit= parseInt(request.query.limit) || 12;
     const search= request.query.search || "";
+    const type= request.query.type || "all";
+    const download= request.query.download=== 'true';
     
     const query = search
       ? { title: { $regex: search, $options: 'i' } }
       : {};
+
+      if(download){
+        let downloadFilter={...query};
+
+        if(type==="all"){
+           downloadFilter.status="active";
+        }
+
+        if(type==="homepage"){
+          downloadFilter.showingOnHomePage=true;
+          downloadFilter.status="active";
+
+          const homepageProducts = await collection.find(downloadFilter).sort({createdAt: -1}).limit(limit).toArray();
+
+          const jsonData= JSON.stringify({
+              success: true,
+              data: homepageProducts,
+          },null,2);
+
+          return reply 
+          .header('Content-Type', 'application/json')
+          .header('Content-Disposition', `attachment; filename=homepage_products.json`)
+          .send(jsonData);
+         
+
+        }
+
+
+      const  totalProducts= await collection.countDocuments(downloadFilter);
+
+      const allProducts = await collection.find(downloadFilter)
+      .sort({createdAt: -1}).toArray();  
+
+      const totalPages=Math.ceil(totalProducts/limit);
+
+      const jsonData= JSON.stringify({
+              success: true,
+              pagination: {
+                total: totalProducts,
+                page: Number(page),
+                limit: Number(limit),
+                totalPages: totalPages
+              },
+              data: allProducts,
+
+      },null,2);
+
+      const fileName=type==="homepage"?"homepage_products.json":"all_products.json";
+
+      return reply 
+      .header('Content-Type', 'application/json')
+      .header('Content-Disposition', `attachment; filename=${fileName}`)
+      .send(jsonData);
+      }
+
+
     const products = await collection
       .find(query)
       .skip((page - 1) * limit)
       .limit(limit)
+      .sort({ createdAt: -1 })
       .toArray();
 
     const totalCount = await collection.countDocuments(query);
@@ -470,12 +533,55 @@ const query = search
 ? { title: { $regex: search, $options: 'i' } }
 : {};
 const products = await collection
-.find(query)
+.find({status: "active", ...query})
 .skip((page - 1) * limit)
 .limit(limit)
 .toArray();
 
-const totalCount = await collection.countDocuments(query);
+const totalCount = await collection.countDocuments({status: "active", ...query});
+    reply.code(200).send({
+      success: true,
+      data: products,
+      pagination: {
+        total: totalCount,
+        page: page,
+        limit: limit,
+        totalPages: Math.ceil(totalCount / limit)
+      }
+    });
+  } catch (error) {
+    request.log.error(error);
+    reply.code(500).send({
+      success: false,
+      message: 'Internal Server Error'
+    });
+  }
+}
+
+
+export const fetchInTrendingProducts = async (request, reply) => {
+  try {
+    const db = request.server.mongo.db;
+    if (!db) {
+      return reply.code(500).send({
+        success: false,
+        message: 'Database connection not available'
+      });
+    }
+
+    const page=  parseInt(request.query.page) || 1;
+    const limit= parseInt(request.query.limit) || 12;
+    const search= request.query.search || "";
+
+    const query = search
+      ? { title: { $regex: search, $options: 'i' } }
+      : {};
+      
+    const collection = db.collection('products');
+
+    const products=await collection.find({status:'active', inTrending:true, ...query}).skip((page - 1) * limit).limit(limit).sort({ createdAt: -1 }).toArray();
+    const totalCount = await collection.countDocuments({status:'active', inTrending:true, ...query});
+    
     reply.code(200).send({
       success: true,
       data: products,
