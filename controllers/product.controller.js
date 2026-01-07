@@ -572,12 +572,46 @@ export const fetchInTrendingProducts = async (request, reply) => {
     const page=  parseInt(request.query.page) || 1;
     const limit= parseInt(request.query.limit) || 12;
     const search= request.query.search || "";
+    const type= request.query.type || "all";
+    const download= request.query.download=== 'true';
 
     const query = search
       ? { title: { $regex: search, $options: 'i' } }
       : {};
       
     const collection = db.collection('products');
+
+    if(download){
+      let downloadFilter={...query};
+
+      if(type==="all"){
+         downloadFilter.status="active";
+      }
+
+      const  totalProducts= await collection.countDocuments({status:"active", inTrending:true, ...downloadFilter});
+
+      const allProducts = await collection.find({status:"active", inTrending:true, ...downloadFilter})
+      .sort({createdAt: -1}).toArray();
+      const totalPages=Math.ceil(totalProducts/limit);
+      
+      const jsonData= JSON.stringify({
+              success: true,
+              pagination: {
+                total: totalProducts,
+                page: Number(page),
+                limit: Number(limit),
+                totalPages: totalPages
+              },
+              data: allProducts,
+
+      },null,2);
+
+      return reply 
+      .header('Content-Type', 'application/json')
+      .header('Content-Disposition', `attachment; filename=All_trending_products.json`)
+      .send(jsonData);
+    }
+
 
     const products=await collection.find({status:'active', inTrending:true, ...query}).skip((page - 1) * limit).limit(limit).sort({ createdAt: -1 }).toArray();
     const totalCount = await collection.countDocuments({status:'active', inTrending:true, ...query});

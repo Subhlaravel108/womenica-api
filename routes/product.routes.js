@@ -24,6 +24,7 @@ export default async function productRoutes(fastify, options) {
   fastify.get('/product/:slug', { preHandler: [authMiddleware] }, fetchProductDetails)
 
   fastify.delete('/product/delete', { preHandler: [authMiddleware] }, deleteProduct);
+  fastify.get('/product/inTrending', { preHandler: [authMiddleware] }, fetchInTrendingProducts );
 
   fastify.get('/frontend/products', fetchProductsForHomePage);
   fastify.get('/frontend/product/:slug', fetchProductDetails);
