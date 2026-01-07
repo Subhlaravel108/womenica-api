@@ -13,8 +13,11 @@ import productCategoryRoutes from './routes/productCategory.route.js';
 import authRoutes from './routes/auth.routes.js';
 const fastify = Fastify({
   logger: true,
-  maxParamLength: 5000
+  routerOptions: {
+    maxParamLength: 5000
+  }
 });
+
 
 
 
