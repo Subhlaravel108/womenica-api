@@ -663,7 +663,7 @@ export const downloadProductsByCategory = async (request, reply) => {
       });
     }
 
-    const products = await collection.find({ productCategoryId: category._id, status: 'active' }).toArray();
+    const products = await collection.find({ productCategoryId: category._id, status: 'active' }).sort({ createdAt: -1 }).toArray();
     const totalCount = await collection.countDocuments({ productCategoryId: category._id, status: 'active' });
 
     const jsonData= JSON.stringify({
