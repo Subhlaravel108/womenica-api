@@ -668,13 +668,13 @@ export const downloadProductsByCategory = async (request, reply) => {
 
     const jsonData= JSON.stringify({
               success: true,
-              data: products,
               pagination: {
                 total: totalCount,
                 page: Number(page),
                 limit: Number(limit),
                 totalPages: Math.ceil(totalCount / limit)
               },
+              data: products,
       },null,2);
 
       return reply 
