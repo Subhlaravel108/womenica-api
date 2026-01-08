@@ -1,5 +1,5 @@
 // import { addProduct } from "../controllers/product.controller";
-import { addProduct,updateProduct,fetchProducts,fetchProductDetails,deleteProduct,fetchProductsForHomePage,fetchProductsByCategory, fetchRelatedProducts, fetchAllProductList, fetchInTrendingProducts,downloadProductsByCategory } from "../controllers/product.controller.js";
+import { addProduct,updateProduct,fetchProducts,fetchProductDetails,deleteProduct,fetchProductsForHomePage,fetchProductsByCategory, fetchRelatedProducts, fetchAllProductList, fetchInTrendingProducts,downloadProductsByCategory, fetchBestSellerProducts } from "../controllers/product.controller.js";
 import { createProductSchema } from "../validators/product.validator.js";
 import { validateSchema } from "../validators/validation.middleware.js";
 // import authMiddleware from "../middleware/auth.middleware.js";
@@ -26,8 +26,9 @@ export default async function productRoutes(fastify, options) {
   fastify.delete('/product/delete', { preHandler: [authMiddleware] }, deleteProduct);
   fastify.get('/product/inTrending', { preHandler: [authMiddleware] }, fetchInTrendingProducts );
   fastify.get('/products/download/:categoryName', { preHandler: [authMiddleware] }, downloadProductsByCategory );
+  fastify.get('/products/bestSellers', { preHandler: [authMiddleware] }, fetchBestSellerProducts );
 
-  
+
   fastify.get('/frontend/products', fetchProductsForHomePage);
   fastify.get('/frontend/product/:slug', fetchProductDetails);
   fastify.get('/frontend/products/category/:slug', fetchProductsByCategory);
@@ -39,5 +40,5 @@ export default async function productRoutes(fastify, options) {
 
 fastify.get('/frontend/product/search', fetchAllProductList);
 fastify.get('/frontend/products/inTrending', fetchInTrendingProducts );
-
+fastify.get('/frontend/products/bestSellers', fetchBestSellerProducts );
 }
