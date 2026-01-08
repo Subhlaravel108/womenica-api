@@ -634,3 +634,59 @@ export const fetchInTrendingProducts = async (request, reply) => {
     });
   }
 }
+
+
+
+export const downloadProductsByCategory = async (request, reply) => {
+  try {
+       const db = request.server.mongo.db;
+    if (!db) {
+      return reply.code(500).send({
+        success: false,
+        message: 'Database connection not available'
+      });
+    }
+    const collection = db.collection('products');
+    const productCategoryCollection = db.collection('productCategories');
+    const categoryName=request.params.categoryName;
+    const page=  parseInt(request.query.page) || 1;
+    const limit= parseInt(request.query.limit) || 12;
+    
+
+
+    const category = await productCategoryCollection.findOne({ title: categoryName });
+
+    if (!category) {
+      return reply.code(404).send({
+        success: false,
+        message: 'Category not found'
+      });
+    }
+
+    const products = await collection.find({ productCategoryId: category._id, status: 'active' }).toArray();
+    const totalCount = await collection.countDocuments({ productCategoryId: category._id, status: 'active' });
+
+    const jsonData= JSON.stringify({
+              success: true,
+              data: products,
+              pagination: {
+                total: totalCount,
+                page: Number(page),
+                limit: Number(limit),
+                totalPages: Math.ceil(totalCount / limit)
+              },
+      },null,2);
+
+      return reply 
+      .header('Content-Type', 'application/json')
+      .header('Content-Disposition', `attachment; filename=${categoryName}_products.json`)
+      .send(jsonData);
+      
+  } catch (error) {
+    request.log.error(error);
+    reply.code(500).send({
+      success: false,
+      message: 'Internal Server Error'
+    });
+  }
+};
