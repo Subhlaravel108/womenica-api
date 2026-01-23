@@ -49,7 +49,7 @@ export const addProduct = async (request, reply) => {
       showingOnHomePage: request.body.showingOnHomePage,
       inTrending: request.body.inTrending,
       isBestSeller: request.body.isBestSeller,
-      amazon_link: `https://www.amazon.in/${slug}/dp/${request.body.sku}/ref=sr_1_1`,
+      amazon_link: `https://www.amazon.in/${slug}/dp/${request.body.sku}?tag=womenica-21`,
       createdAt: new Date()
     };
 
@@ -133,7 +133,7 @@ export const updateProduct = async (request, reply) => {
         inTrending: body.inTrending,
         isBestSeller: body.isBestSeller,
         slug: updatedSlug,
-        amazon_link: `https://www.amazon.in/${updatedSlug}/dp/${body.sku}/ref=sr_1_1`,
+        amazon_link: `https://www.amazon.in/${updatedSlug}/dp/${body.sku}?tag=womenica-21`,
         updatedAt: new Date()
       };
 
@@ -741,7 +741,7 @@ export const fetchBestSellerProducts = async (request, reply) => {
 
       return reply 
       .header('Content-Type', 'application/json')
-      .header('Content-Disposition', `attachment; filename=All_trending_products.json`)
+      .header('Content-Disposition', `attachment; filename=All_best_seller_products.json`)
       .send(jsonData);
     }
 
