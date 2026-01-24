@@ -29,15 +29,8 @@ export const scrapAmazonProducts = async (request, reply) => {
 
   try {
     browser = await puppeteer.launch({
-      headless: true,
-      args: [
-        "--no-sandbox",
-        "--disable-setuid-sandbox",
-        "--disable-dev-shm-usage",
-        "--disable-gpu",
-        "--no-zygote",
-        "--single-process",
-      ],
+      headless: "new",
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
     });
 
     const page = await browser.newPage();
@@ -55,34 +48,39 @@ export const scrapAmazonProducts = async (request, reply) => {
 
     const productsMap = new Map();
 
-    // 🔁 Scroll + collect
+    // 🔁 Scroll + collect (industry safe approach)
     for (let i = 0; i < 12; i++) {
-      await page.evaluate(() => window.scrollBy(0, window.innerHeight));
+      await page.evaluate(() => {
+        window.scrollBy(0, window.innerHeight);
+      });
+
       await new Promise((resolve) => setTimeout(resolve, 1200));
 
       const items = await page.evaluate(() => {
-        return Array.from(document.querySelectorAll(".s-result-item[data-asin]"))
-          .map((el) => {
-            const asin = el.getAttribute("data-asin")?.trim();
-            const title = el.querySelector("h2 span")?.innerText?.trim();
-            const image = el.querySelector("img")?.src || "";
+        return Array.from(
+          document.querySelectorAll(".s-result-item[data-asin]")
+        ).map((el) => {
+          const asin = el.getAttribute("data-asin")?.trim();
+          const title = el.querySelector("h2 span")?.innerText?.trim();
+          const image = el.querySelector("img")?.src || "";
 
-            const price =
-              el.querySelector(".a-price > .a-offscreen")?.innerText || "";
+          // 🔥 BEST PRICE SELECTOR
+          const price =
+            el.querySelector(".a-price > .a-offscreen")?.innerText || "";
 
-            if (!asin || !title || !image) return null;
+          if (!asin || !title || !image) return null;
 
-            return {
-              sku: asin,
-              title: title.replace(/\s+/g, " "),
-              image_url: image,
-              price: price.replace(/[^\d.]/g, ""),
-            };
-          })
-          .filter(Boolean);
+          return {
+            sku: asin,
+            title: title.replace(/\s+/g, " "),
+            image_url: image,
+            price: price.replace(/[^\d.]/g, ""), // remove ₹, commas etc.
+          };
+        });
       });
 
       for (const item of items) {
+        if (!item) continue;
         if (!productsMap.has(item.sku)) {
           productsMap.set(item.sku, item);
         }
@@ -121,22 +119,29 @@ export const scrapAmazonProducts = async (request, reply) => {
       fs.mkdirSync(uploadDir, { recursive: true });
     }
 
-    fs.writeFileSync(path.join(uploadDir, fileName), csv, "utf8");
+   fs.writeFileSync(path.join(uploadDir, fileName), csv, "utf8");
 
-    // Cleanup old files (optional)
-    const retentionDays = 7;
-    const retentionTime = retentionDays * 24 * 60 * 60 * 1000;
+// 🔥 Add cleanup here
+const retentionDays = 7; // keep files for 7 days
+const retentionTime = retentionDays * 24 * 60 * 60 * 1000;
 
-    fs.readdirSync(uploadDir).forEach((file) => {
-      const filePath = path.join(uploadDir, file);
-      const stats = fs.statSync(filePath);
-      const now = Date.now();
-      if (now - stats.mtimeMs > retentionTime) {
-        fs.unlinkSync(filePath);
-      }
+fs.readdirSync(uploadDir).forEach((file) => {
+  const filePath = path.join(uploadDir, file);
+  const stats = fs.statSync(filePath);
+  const now = Date.now();
+
+  if (now - stats.mtimeMs > retentionTime) {
+    fs.unlinkSync(filePath);
+  }
+});
+
+await browser.close();
+
+    console.info({
+      module: "AMAZON_SCRAPER",
+      total_products: products.length,
+      time_taken_ms: Date.now() - startTime,
     });
-
-    await browser.close();
 
     return reply.send({
       success: true,
