@@ -26,10 +26,15 @@ import blogCategoryRoutes from './routes/blogCategory.route.js';
 import uploadRoutes from './routes/upload.routes.js';
 import blogRoutes from './routes/blog.routes.js';
 import excelRoutes from './routes/uploadExcel.routes.js';
+import amazonRoutes from './routes/amazon.route.js';
 
+// fastify.register(fastifyStatic, {
+//   root: path.join(process.cwd(), 'public'),
+//   prefix: '/public/', // optional: default '/'
+// });
 fastify.register(fastifyStatic, {
-  root: path.join(process.cwd(), 'public'),
-  prefix: '/public/', // optional: default '/'
+  root: path.join(process.cwd(), 'uploads'),
+  prefix: '/uploads/', // optional: default '/'
 });
 
 fastify.register(fastifyMultipart, {
@@ -68,6 +73,7 @@ fastify.register(blogCategoryRoutes, { prefix: '/api' });
 fastify.register(uploadRoutes, { prefix: '/api' });
 fastify.register(blogRoutes, { prefix: '/api' });
 fastify.register(excelRoutes, { prefix: '/api' });
+fastify.register(amazonRoutes, { prefix: '/api' });
 // Start server
 const start = async () => {
   try {
