@@ -28,10 +28,19 @@ export const scrapAmazonProducts = async (request, reply) => {
   let browser;
 
   try {
-    browser = await puppeteer.launch({
-      headless: "new",
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    });
+browser = await puppeteer.launch({
+  headless: true,
+  executablePath: "/usr/bin/google-chrome-stable",
+  args: [
+    "--no-sandbox",
+    "--disable-setuid-sandbox",
+    "--disable-dev-shm-usage",
+    "--disable-gpu",
+    "--no-zygote",
+    "--single-process",
+  ],
+});
+
 
     const page = await browser.newPage();
 
