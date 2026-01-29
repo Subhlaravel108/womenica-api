@@ -53,6 +53,16 @@ export const addProduct = async (request, reply) => {
       createdAt: new Date()
     };
 
+    // 🔹 SKU uniqueness check
+const existingSku = await collection.findOne({ sku: request.body.sku });
+
+if (existingSku) {
+  return reply.code(409).send({
+    success: false,
+    message: "SKU already exists. Please use a unique SKU."
+  });
+}
+
     const result = await collection.insertOne(productData);
 
     reply.code(201).send({

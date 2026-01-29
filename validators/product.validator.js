@@ -81,3 +81,62 @@ export const createProductSchema = yup.object({
   .oneOf([true, false], "isBestSeller must be true or false"),
 
 });
+
+const excelStatus = (value) => {
+  if (typeof value === "string") {
+    const v = value.toLowerCase().trim();
+    if (["yes", "true", "active", "1"].includes(v)) return "active";
+    if (["no", "false", "inactive", "0"].includes(v)) return "inactive";
+  }
+
+  if (typeof value === "boolean") {
+    return value ? "active" : "inactive";
+  }
+
+  return "inactive"; // default
+};
+
+// SHOWING ON HOME PAGE → boolean (true / false only)
+const excelBoolean = (value) => {
+  if (typeof value === "boolean") return value;
+
+  if (typeof value === "string") {
+    const v = value.toLowerCase().trim();
+    if (["yes", "true", "1"].includes(v)) return true;
+    if (["no", "false", "0"].includes(v)) return false;
+  }
+
+  return false; // default
+};
+
+export const createExcelProductSchema = yup
+  .object({
+    title: yup.string().required("title is required"),
+
+    image_url: yup.string().nullable(),
+
+    description: yup.string().nullable(),
+
+    product_price: yup
+      .number()
+      .transform((_, v) => (v === "" || v == null ? 0 : Number(v)))
+      .default(0),
+
+    sku: yup.string().nullable(),
+
+    productCategoryId: yup.string().nullable(),
+
+    // ✅ Active / Inactive only
+    status: yup
+      .string()
+      .transform((_, v) => excelStatus(v))
+      .oneOf(["active", "inactive"])
+      .default("active"),
+
+    // ✅ true / false only
+    showingOnHomePage: yup
+      .boolean()
+      .transform((_, v) => excelBoolean(v))
+      .default(false),
+  })
+  .noUnknown(false);
