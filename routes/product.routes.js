@@ -29,6 +29,8 @@ export default async function productRoutes(fastify, options) {
   fastify.get('/products/bestSellers', { preHandler: [authMiddleware] }, fetchBestSellerProducts );
 
 
+  
+
   fastify.get('/frontend/products', fetchProductsForHomePage);
   fastify.get('/frontend/product/:slug', fetchProductDetails);
   fastify.get('/frontend/products/category/:slug', fetchProductsByCategory);

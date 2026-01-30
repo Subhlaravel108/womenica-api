@@ -222,7 +222,7 @@ export const uploadExcelToProducts = async (request, reply) => {
       try {
         const validatedRow = await createExcelProductSchema.validate(rows[i], {
           abortEarly: false,
-          stripUnknown: true,
+          stripUnknown: false,
         });
 
         // 🔴 ObjectId validation

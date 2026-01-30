@@ -702,6 +702,69 @@ export const downloadProductsByCategory = async (request, reply) => {
 };
 
 
+// export const downloadProductsByCategory = async (request, reply) => {
+//   try {
+//     const db = request.server.mongo.db;
+//     if (!db) {
+//       return reply.code(500).send({
+//         success: false,
+//         message: "Database connection not available",
+//       });
+//     }
+
+//     const collection = db.collection("products");
+//     const productCategoryCollection = db.collection("productCategories");
+
+//     const categoryName = request.params.categoryName;
+
+//     const category = await productCategoryCollection.findOne({
+//       title: categoryName,
+//     });
+
+//     if (!category) {
+//       return reply.code(404).send({
+//         success: false,
+//         message: "Category not found",
+//       });
+//     }
+
+//     // ✅ GET ALL PRODUCTS (NO LIMIT, NO PAGE)
+//     const products = await collection
+//       .find({
+//         productCategoryId: category._id,
+//         status: "active", // ⚠️ case fix
+//       })
+//       .sort({ createdAt: -1 })
+//       .toArray();
+
+//     const jsonData = JSON.stringify(
+//       {
+//         success: true,
+//         total: products.length,
+//         data: products,
+//       },
+//       null,
+//       2
+//     );
+
+//     return reply
+//       .header("Content-Type", "application/json")
+//       .header(
+//         "Content-Disposition",
+//         `attachment; filename=${categoryName}_all_products.json`
+//       )
+//       .send(jsonData);
+//   } catch (error) {
+//     request.log.error(error);
+//     reply.code(500).send({
+//       success: false,
+//       message: "Internal Server Error",
+//     });
+//   }
+// };
+
+
+
 export const fetchBestSellerProducts = async (request, reply) => {
   try {
     const db = request.server.mongo.db;
