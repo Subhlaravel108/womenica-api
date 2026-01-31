@@ -658,13 +658,13 @@ export const downloadProductsByCategory = async (request, reply) => {
     }
     const collection = db.collection('products');
     const productCategoryCollection = db.collection('productCategories');
-    const categoryName=request.params.categoryName;
+    const slug=request.params.slug;
     const page=  parseInt(request.query.page) || 1;
     const limit= parseInt(request.query.limit) || 12;
     
 
 
-    const category = await productCategoryCollection.findOne({ title: categoryName });
+    const category = await productCategoryCollection.findOne({slug});
 
     if (!category) {
       return reply.code(404).send({
@@ -689,7 +689,7 @@ export const downloadProductsByCategory = async (request, reply) => {
 
       return reply 
       .header('Content-Type', 'application/json')
-      .header('Content-Disposition', `attachment; filename=${categoryName}_products.json`)
+      .header('Content-Disposition', `attachment; filename=${slug}_products.json`)
       .send(jsonData);
       
   } catch (error) {

@@ -25,7 +25,7 @@ export default async function productRoutes(fastify, options) {
 
   fastify.delete('/product/delete', { preHandler: [authMiddleware] }, deleteProduct);
   fastify.get('/product/inTrending', { preHandler: [authMiddleware] }, fetchInTrendingProducts );
-  fastify.get('/products/download/:categoryName', { preHandler: [authMiddleware] }, downloadProductsByCategory );
+  fastify.get('/products/download/:slug', { preHandler: [authMiddleware] }, downloadProductsByCategory );
   fastify.get('/products/bestSellers', { preHandler: [authMiddleware] }, fetchBestSellerProducts );
 
 
