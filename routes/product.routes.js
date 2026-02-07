@@ -1,5 +1,5 @@
 // import { addProduct } from "../controllers/product.controller";
-import { addProduct,updateProduct,fetchProducts,fetchProductDetails,deleteProduct,fetchProductsForHomePage,fetchProductsByCategory, fetchRelatedProducts, fetchAllProductList, fetchInTrendingProducts,downloadProductsByCategory, fetchBestSellerProducts } from "../controllers/product.controller.js";
+import { addProduct,updateProduct,fetchProducts,fetchProductDetails,deleteProduct,fetchProductsForHomePage,fetchProductsByCategory, fetchRelatedProducts, fetchAllProductList, fetchInTrendingProducts,downloadProductsByCategory, fetchBestSellerProducts,exportProductSkusToExcel } from "../controllers/product.controller.js";
 import { createProductSchema } from "../validators/product.validator.js";
 import { validateSchema } from "../validators/validation.middleware.js";
 // import authMiddleware from "../middleware/auth.middleware.js";
@@ -28,6 +28,7 @@ export default async function productRoutes(fastify, options) {
   fastify.get('/products/download/:slug', { preHandler: [authMiddleware] }, downloadProductsByCategory );
   fastify.get('/products/bestSellers', { preHandler: [authMiddleware] }, fetchBestSellerProducts );
 
+  fastify.get('/products/exportSkus', { preHandler: [authMiddleware] }, exportProductSkusToExcel );
 
   
 

@@ -1,7 +1,7 @@
 import { ObjectId } from "@fastify/mongodb";
 import { generateUniqueSlug } from "../utils/generateUniqueSlug.js";
 import { title } from "process";
-
+import XLSX from "xlsx";
 export const addProduct = async (request, reply) => {
   try {
 
@@ -181,7 +181,10 @@ export const fetchProducts = async (request, reply) => {
     const download= request.query.download=== 'true';
     
     const query = search
-      ? { title: { $regex: search, $options: 'i' } }
+      ? { $or: [
+          { title: { $regex: search, $options: 'i' } },
+          { sku: { $regex: search, $options: 'i' } }
+        ]}
       : {};
 
       if(download){
@@ -840,3 +843,60 @@ export const fetchBestSellerProducts = async (request, reply) => {
     });
   }
 }
+
+
+
+
+export const exportProductSkusToExcel = async (request, reply) => {
+  try {
+    const db = request.server.mongo.db;
+    const collection = db.collection("products");
+
+    // 🔹 Only SKU fetch karo
+    const products = await collection
+      .find(
+        { sku: { $exists: true, $ne: "" } },
+        { projection: { _id: 0, sku: 1 } }
+      )
+      .toArray();
+
+    if (!products.length) {
+      return reply.code(404).send({
+        success: false,
+        message: "No products found",
+      });
+    }
+
+    // 🔹 Excel-ready format
+    const rows = products.map((p, index) => ({
+      sku: p.sku,
+    }));
+
+    // 🔹 Excel generate
+    const sheet = XLSX.utils.json_to_sheet(rows);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, sheet, "SKUs");
+
+    const buffer = XLSX.write(workbook, {
+      type: "buffer",
+      bookType: "xlsx",
+    });
+
+    return reply
+      .header(
+        "Content-Disposition",
+        "attachment; filename=product_skus.xlsx"
+      )
+      .type(
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      )
+      .send(buffer);
+
+  } catch (error) {
+    console.error("🔥 SKU export failed:", error);
+    return reply.code(500).send({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
