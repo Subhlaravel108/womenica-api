@@ -1,4 +1,5 @@
-import puppeteer from "puppeteer-extra";
+import puppeteer from "puppeteer";
+import puppeteerExtra from "puppeteer-extra";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
 import fs from "fs";
 import path from "path";
@@ -7,7 +8,7 @@ import { v4 as uuidv4 } from "uuid";
 import cloudinary from "../utils/cloudinary.js";
 import { fileURLToPath } from "url";
 
-puppeteer.use(StealthPlugin());
+puppeteerExtra.use(StealthPlugin());
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -29,7 +30,7 @@ export const scrapAmazonProducts = async (request, reply) => {
   let browser;
 
   try {
- const browser = await puppeteer.launch({
+browser = await puppeteerExtra.launch({
   headless: true,
   executablePath: puppeteer.executablePath(),
   args: [
