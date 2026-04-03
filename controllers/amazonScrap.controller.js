@@ -4,6 +4,7 @@ import fs from "fs";
 import path from "path";
 import { Parser } from "json2csv";
 import { v4 as uuidv4 } from "uuid";
+import cloudinary from "../utils/cloudinary.js";
 import { fileURLToPath } from "url";
 
 puppeteer.use(StealthPlugin());
@@ -112,15 +113,28 @@ export const scrapAmazonProducts = async (request, reply) => {
     const csv = parser.parse(products);
 
     const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-    const fileName = `amazon_products_${timestamp}_${uuidv4()}.csv`;
-    const uploadDir = path.join(__dirname, "../uploads");
+const fileName = `amazon_products_${timestamp}_${uuidv4()}.csv`;
 
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
+const uploadDir = path.join(process.cwd(), "uploads");
 
-   fs.writeFileSync(path.join(uploadDir, fileName), csv, "utf8");
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
 
+const filePath = path.join(uploadDir, fileName);
+
+fs.writeFileSync(filePath, csv, "utf8");
+
+// Upload CSV to Cloudinary
+const result = await cloudinary.uploader.upload(filePath, {
+  resource_type: "raw",
+  folder: "amazon-csv",
+  public_id: fileName.replace(".csv", ""),
+  use_filename: true,
+  unique_filename: false,
+  flags: "attachment",
+});
+console.log("Cloudinary upload result:", result);
 // 🔥 Add cleanup here
 const retentionDays = 7; // keep files for 7 days
 const retentionTime = retentionDays * 24 * 60 * 60 * 1000;
@@ -151,7 +165,7 @@ await browser.close();
         time_taken_ms: Date.now() - startTime,
       },
       data: {
-        download_url: `/uploads/${fileName}`,
+        download_url:  result.secure_url,
       },
     });
   } catch (error) {
