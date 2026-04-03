@@ -29,9 +29,10 @@ export const scrapAmazonProducts = async (request, reply) => {
   let browser;
 
   try {
-  browser = await puppeteer.launch({
+  const browser = await puppeteer.launch({
   headless: true,
-  executablePath: puppeteer.executablePath(),
+  executablePath:
+    "/opt/render/.cache/puppeteer/chrome/linux-144.0.7559.96/chrome-linux64/chrome",
   args: [
     "--no-sandbox",
     "--disable-setuid-sandbox",
