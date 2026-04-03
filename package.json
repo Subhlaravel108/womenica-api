@@ -4,11 +4,10 @@
   "description": "Womenica API with Fastify",
   "main": "server.js",
   "type": "module",
- "scripts": {
-  "postinstall": "npx puppeteer browsers install chrome --path ./chrome",
-  "start": "node server.js",
-  "dev": "node --watch server.js"
-},
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
