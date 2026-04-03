@@ -32,7 +32,14 @@ export const scrapAmazonProducts = async (request, reply) => {
   try {
 browser = await puppeteerExtra.launch({
   headless: true,
-  executablePath: puppeteer.executablePath(),
+  executablePath: path.join(
+    process.cwd(),
+    "chrome",
+    "chrome",
+    "linux-144.0.7559.96",
+    "chrome-linux64",
+    "chrome"
+  ),
   args: [
     "--no-sandbox",
     "--disable-setuid-sandbox",
