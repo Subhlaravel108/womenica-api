@@ -49,7 +49,7 @@ export const addProduct = async (request, reply) => {
       showingOnHomePage: request.body.showingOnHomePage,
       inTrending: request.body.inTrending,
       isBestSeller: request.body.isBestSeller,
-      amazon_link: `https://www.amazon.in/${slug}/dp/${request.body.sku}?tag=womenica-21`,
+      amazon_link: `https://www.amazon.in/${slug}/dp/${request.body.sku}?tag=womanica-21`,
       createdAt: new Date()
     };
 
