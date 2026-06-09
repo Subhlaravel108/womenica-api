@@ -56,7 +56,7 @@ export const uploadExcelToProducts = async (request, reply) => {
         );
 
         const amazon_link = validatedRow.sku
-          ? `https://www.amazon.in/${slug}/dp/${validatedRow.sku}/?tag=womenica-21`
+          ? `https://www.amazon.in/${slug}/dp/${validatedRow.sku}/?tag=womanica-21`
           : "";
 
        validRows.push({

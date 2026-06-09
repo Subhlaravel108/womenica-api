@@ -143,7 +143,7 @@ export const updateProduct = async (request, reply) => {
         inTrending: body.inTrending,
         isBestSeller: body.isBestSeller,
         slug: updatedSlug,
-        amazon_link: `https://www.amazon.in/${updatedSlug}/dp/${body.sku}?tag=womenica-21`,
+        amazon_link: `https://www.amazon.in/${updatedSlug}/dp/${body.sku}?tag=womanica-21`,
         updatedAt: new Date()
       };
 
